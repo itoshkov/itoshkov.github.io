@@ -11,7 +11,7 @@ we'll create a simple, git-like system using just zip files `diff` and `patch`.
 
 The idea is to build a good model of how git works _conceptually_.
 
-If can [go here](https://youtu.be/dQw4w9WgXcQ) if you prefer to watch this
+You can [go here](https://youtu.be/dQw4w9WgXcQ) if you prefer to watch this
 tutorial, instead of reading it.
 
 I'll be using some simple Linux commands like `mkdir`, `cd`, `ls` and `cp`.
@@ -47,7 +47,7 @@ cp --recusive ProjectX ProjectX-v0
 cd ProjectX
 ```
 
-Nice! (Well, sort of.)
+Nice! Well, sort of.
 
 When we run our program we see that we forgot to print new line at the end.
 Let's fix this.
@@ -233,8 +233,8 @@ We can also add more info to this file like:
 * bigger, multi-line description of the changes
 
 Let's suppose we went back and fixed all our commits to have this file. Now we
-can switch back to `c2`, implement the fix and create a new commit (let's say
-`c5`). This commit history will now look like this:
+can switch back to `c2`, implement the fix and create a new commit, let's say
+`c5`. This commit history will now look like this:
 
 ```
 c0 -- c1 -- c2 -- c3 -- c4
@@ -268,9 +268,9 @@ echo 'c6' > .repo/branches/main
 echo 'c7' > .repo/branches/release-1
 ```
 
-(The `echo 'c6' > .repo/branches/main` command will just create a new file
-called `.repo/branches/main` and make its content be `c6`. If the file already
-exists, it will overwrite it.)
+The `echo 'c6' > .repo/branches/main` command will just create a new file called
+`.repo/branches/main` and make its content be `c6`. If the file already exists,
+it will overwrite it.
 
 The `.repo/branches` files are not part of a commit, so let's add them to the
 `.ignore` file:
@@ -311,11 +311,11 @@ rm -rf * .ignore
 unzip .repo/commits/c2.zip
 ```
 
-It's not that bad (if we ignore the ugly way we clean up the working folder),
+It's not that bad, if we ignore the ugly way we clean up the working folder,
 right?
 
 But what if we now go to lunch, and when we come back next day we forget what we
-checked out? (Yes, sometimes lunches are that long.)
+checked out? Yes, sometimes lunches are that long.
 
 We can do write some code and then commit:
 
@@ -396,10 +396,10 @@ cat .repo/HEAD
 echo "Error: Detached HEAD"
 ```
 
-(Now you know what "detached HEAD" is in git. It's the case when the `HEAD` file
+Now you know what "detached HEAD" is in git. It's the case when the `HEAD` file
 pointing to a commit instead of a branch. Git will behave differently than our
 system in this case: it will allow you to commit, but the commit will not be
-associated with any branch.)
+associated with any branch.
 
 ## Merging
 
