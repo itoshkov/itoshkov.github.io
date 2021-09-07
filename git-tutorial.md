@@ -424,8 +424,8 @@ One way to do that, is the following:
 1. Find the most recent commit, which is parent to both `c9` and `c7`. This is
    `c2`.
 2. Find the changes between `c2` and `c7` (the `release-1` branch). We can unzip
-   both the commits in 2 temporary folders and then `diff -r -u c2-temp c7-temp
-   > changes.diff` them.
+   both the commits in 2 temporary folders and then `diff -r -u c2-temp c7-temp >
+   changes.diff` them.
 3. Patch the code in the working folder (`c9`): `patch < changes.diff`
 4. Manually fix any conflicts
 5. Commit
