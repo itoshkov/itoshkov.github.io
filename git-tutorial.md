@@ -12,9 +12,10 @@ we'll create a simple, git-like system using just zip files `diff` and `patch`.
 The idea is to build a good model of how git works _conceptually_.
 
 You can [go here](https://youtu.be/dQw4w9WgXcQ) if you prefer to watch this
-tutorial, instead of reading it.
+tutorial instead of reading it.
 
-I'll be using some simple Linux commands like `mkdir`, `cd`, `ls` and `cp`.
+I'll be using some simple Linux commands like `mkdir`, `cd`, `ls`, `cp` and of
+course `zip`.
 
 # Version Control Without Git
 
@@ -60,7 +61,7 @@ void main() {
 }
 ```
 
-We can see the differences between this version and v0 like this:
+We can see the differences between this version and `v0` like this:
 
 ```bash
 diff --recusive --unified ../ProjectX-v0 .
@@ -97,13 +98,13 @@ One of the problems with copying folders like that is, that they tend to take a
 lot of space. Also, it's easy to accidentally change things in the "archive"
 folder, instead of in the working one.
 
-We can fix these by using Zip files instead of folders. Zip files still can be
+We can fix these by using zip files instead of folders. Zip files still can be
 changed, but at least it's harder to do so by mistake.
 
 Let's also start calling these archives commits. For now a commit is just a
 snapshot of the current sources, stored in a zip file.
 
-We can now create our zip files:
+Here's how to "convert" the old directories to the new format:
 
 ```bash
 cd ..
@@ -188,14 +189,14 @@ We want to track its content with new versions.
 
 ## Branches
 
-So far our versions are named sequentially `c0`, `c1`, `c2` and so on. Also,
-only this order tells us that `c2` was created from `c1`, and that `c1` was
-created from `c0`. That's good enough for linear development, but is very
+So far our versions are named sequentially `c0`, `c1`, `c2` and so on. And order
+is the only thing that tells us that `c2` was created from `c1`, and that `c1`
+was created from `c0`. That's good enough for linear development, but is very
 insufficient for branching development.
 
-So what are branches and why do we need them? Suppose that we have released `c2`
-in the world, and are working on new features. We have created new commits `c3`
-and `c4`, but overall the feature is not ready yet.
+But what are branches and why do we need them? Suppose that we have released
+`c2` in the world, and are working on new features. We have created new commits
+`c3` and `c4`, but overall the feature is not ready yet.
 
 While we are working on it, we receive complaints about some major problem in
 `c2`. And our customers can't wait for us to finish with our new feature. They
@@ -212,7 +213,7 @@ But what if there's yet another problem with the "fixed" `c2`? We can't go back
 to exactly this code, as we didn't save it anywhere. No, we need a better
 solution.
 
-What if every commit "knows" who it's parrent commit is? Let's add another
+What if every commit "knows" which its parrent commit is? Let's add another
 hidden file, called `.repo/commit` and for `c2` it will look like this:
 
 ```
@@ -232,9 +233,11 @@ We can also add more info to this file like:
 * one line summary
 * bigger, multi-line description of the changes
 
-Let's suppose we went back and fixed all our commits to have this file. Now we
-can switch back to `c2`, implement the fix and create a new commit, let's say
-`c5`. This commit history will now look like this:
+But we won't do that in this tutorial, to keep things simple.
+
+We went back and fixed all our commits to have this file. Now we can switch back
+to `c2`, implement the fix and create a new commit, let's say `c5`. This commit
+history will now look like this:
 
 ```
 c0 -- c1 -- c2 -- c3 -- c4
@@ -244,9 +247,9 @@ c0 -- c1 -- c2 -- c3 -- c4
 
 Good! Now we can go back to `c5` when we need to.
 
-Like when we needed to fix the fix. Let's assume we added one more commit to
-`c4`, we then went back to `c5` and implemented the new fix on top of it. The
-picture now will look like this:
+Like when we needed to properly fix the broken fix from before. Let's assume we
+added one more commit to `c4`, we then went back to `c5` and implemented the new
+fix on top of it. The picture now will look like this:
 
 ```
 c0 -- c1 -- c2 -- c3 -- c4 -- c6
@@ -259,8 +262,7 @@ c0 -- c1 -- c2 -- c3 -- c4 -- c6
 So far so good, but we have just 2 branches and it's getting a bit tedious to
 remember the top commit for each of them. Let's name them!
 
-We can do that by creating a file for each branch, and storing in it the top
-commit's name.
+We can have a file for each branch, containing the its top commit's name.
 
 ```bash
 mkdir .repo/branches
@@ -272,7 +274,7 @@ The `echo 'c6' > .repo/branches/main` command will just create a new file called
 `.repo/branches/main` and make its content be `c6`. If the file already exists,
 it will overwrite it.
 
-The `.repo/branches` files are not part of a commit, so let's add them to the
+The `.repo/branches/*` files are not part of a commit, so let's add them to the
 `.ignore` file:
 
 ```
@@ -295,12 +297,12 @@ zip -r -x@.ignore .repo/c8.zip .
 echo 'c8' > .repo/branches/main
 ```
 
-This is tedious and errorprone. I wish somebody will create a program to help
-with this ...
+This is tedious and errorprone. I hope somebody will create a program to
+automate these steps ...
 
 ## Switching
 
-Before, I was saying things like "let's switch to `c2`", or "let's switch to
+Above I was saying things like "let's switch to `c2`", or "let's switch to
 `main`", but I never explained how. Well, here is how:
 
 ```bash
@@ -314,10 +316,9 @@ unzip .repo/commits/c2.zip
 It's not that bad, if we ignore the ugly way we clean up the working folder,
 right?
 
-But what if we now go to lunch, and when we come back next day we forget what we
-checked out? Yes, sometimes lunches are that long.
-
-We can do write some code and then commit:
+But what if we now go to lunch, and when we come back next day we forget which
+commit we switched to? Yes, sometimes lunches are that long. We can then write
+some code and then commit:
 
 ```bash
 # Set the parent info:
@@ -333,11 +334,12 @@ echo 'c9' > .repo/branches/main
 Oops! We committed in the wrong branch! The commit was based off of `c2` but we
 forgot that and treated it as if it was based on `c8` instead.
 
-As Butler Lampson said: "All problems in computer science can be solved by
-another level of indirection." So it's time to add another one. We can create a
-file `.repo/HEAD`, which will tell us which branch or commit we're on.
+Butler Lampson said: "All problems in computer science can be solved by another
+level of indirection." So it's time to add another level of indirection. We can
+create a file `.repo/HEAD`, which will contain the name of the current branch or
+commit.
 
-The new "switch" procedure will look like this for going to specific commit:
+Switching to a commit will look like this:
 
 ```bash
 # Remove all the files and subfolders except for `.repo`:
@@ -350,14 +352,14 @@ unzip .repo/commits/c2.zip
 echo 'commits/c2` > .repo/HEAD
 ```
 
-and for branch:
+and switching to a branch -- like this:
 
 ```bash
 # Remove all the files and subfolders except for `.repo`:
 rm -rf * .ignore
 
 cat .repo/branches/main
-# This will tell us that main brach points to c8
+# This will tell us which commit the main brach points to
 
 # Unzip the relevant commit
 unzip .repo/commits/c8.zip
@@ -367,7 +369,7 @@ echo 'branches/main` > .repo/HEAD
 ```
 
 So if we have switched to a branch and make a commit, we move that branch's
-pointer to the new commit, but the `HEAD` still points to the same branch:
+pointer to the new commit:
 
 ```bash
 cat .repo/HEAD
@@ -406,7 +408,7 @@ associated with any branch.
 Here is the current situation:
 
 ```
-                                     HEAD / main
+                                 HEAD -> main
                                           |
                                           v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9
@@ -440,7 +442,7 @@ parent: c9 c7
 And the full picture now looks this way:
 
 ```
-                                           HEAD / main
+                                       HEAD -> main
                                                 |
                                                 v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
