@@ -173,7 +173,7 @@ To fix this, let's create a list of files to ignore. Put the following in a
 `.ignore` file:
 
 ```
-.repo/commits/*
+.repo/*
 *.o
 main
 ```
@@ -214,14 +214,14 @@ to exactly this code, as we didn't save it anywhere. No, we need a better
 solution.
 
 What if every commit "knows" which its parrent commit is? Let's add another
-hidden file, called `.repo/commit` and for `c2` it will look like this:
+hidden file, called `.commit` and for `c2` it will look like this:
 
 ```
 parent: c1
 ```
 
-The first commit is a bit special, as it doesn't have a parent. Its
-`.repo/commit` will look like this:
+The first commit is a bit special, as it doesn't have a parent. Its `.commit`
+will look like this:
 
 ```
 parent:
@@ -274,21 +274,11 @@ The `echo 'c6' > .repo/branches/main` command will just create a new file called
 `.repo/branches/main` and make its content be `c6`. If the file already exists,
 it will overwrite it.
 
-The `.repo/branches/*` files are not part of a commit, so let's add them to the
-`.ignore` file:
-
-```
-.repo/commits/*
-.repo/branches/*
-*.o
-main
-```
-
 Let's create another commit in our `main` branch to see how it works:
 
 ```bash
 # Set the parent info:
-echo 'parent: c6' > .repo/commit
+echo 'parent: c6' > .commit
 
 # Make the commit:
 zip -r -x@.ignore .repo/c8.zip .
@@ -322,7 +312,7 @@ some code and then commit:
 
 ```bash
 # Set the parent info:
-echo 'parent: c8' > .repo/commit
+echo 'parent: c8' > .repo
 
 # Make the commit:
 zip -r -x@.ignore .repo/c9.zip .
@@ -379,7 +369,7 @@ cat .branches/main
 # --> c8 (the top commit of main is c8)
 
 # Set the parent info:
-echo 'parent: c8' > .repo/commit
+echo 'parent: c8' > .commit
 
 # Make the commit:
 zip -r -x@.ignore .repo/c9.zip .
@@ -433,7 +423,7 @@ One way to do that, is the following:
 5. Commit
 
 Well, there's one more thing. This new commit should have two parents. So let's
-make its `.repo/commit` file read
+make its `.commit` file read
 
 ```
 parent: c9 c7
