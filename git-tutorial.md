@@ -486,7 +486,93 @@ because we merged the latter into the former.
 
 ## Collaboration and remote repositories
 
-*TODO*
+The business is booming, our project gets bigger and we recruit a new developer
+to help us. But for some strange reason they don't want to cummute each day from
+their home in Madagascar, so we agree to work remotely.
+
+For starters let's send them the content of the `.repo` directory. They will be
+adding account support (log-in and profile management), while we're working on
+the highly requested improved-memefication feature.
+
+Let's create a new branch starting from where `main` is pointing to and add a
+new commit there with our initial memefication support.
+
+```
+                                        HEAD -> memefication
+                                                     |
+                                               main  v
+                                                |   c11
+                                                v  /
+c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
+             \                                 /
+              c5 -- c7 ------------------------
+                    ^
+                    |
+                release-1
+```
+
+Meanwhile, the other developer is churning code as well and are creating their
+very first commit:
+
+```
+                                       HEAD -> main
+                                                |
+                                                v
+c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
+             \                                 /   \
+              c5 -- c7 ------------------------    c11
+                    ^                               ^
+                    |                               |
+                release-1               HEAD -> profiles
+```
+
+There's our first problem: both new commits have the same ID: `c11`. This
+happens because there are two copies of the repository and they don't know about
+the changes that happened in the other copy. In fact they don't know there's
+another copy at all.
+
+There are many ways to fix this. We can assign a unique ID to each copy of the
+repository (let's say `a` and `b` in our case) and use that ID as part of the
+commit's IDs: `a:c11` and `b:c11`. Assigning unique IDs to each repo is easy
+right now, but in highly distributed project it might because a hassle.
+
+We could use random numbers instead and hope that there won't be any collisions.
+Instead, we'll do something similar, but with better guarantees for the lack of
+collisions: we'll compute a SHA-1 sum of the zip file and use that as the commit
+ID.
+
+SHA-1 is a cryptography hash algorithm. It takes any input and produces a
+20-byte (160 bit) output. For same inputs it will produce same outputs, but even
+a slight deviation in the input will cause a big change in the output. SHA-1 is
+no longer considered safe, so you should not use it for cryptography, but for
+our case it's good enough. You can always go with something stronger, like
+SHA-256 or SHA-512 if you want.
+
+We'll have to fix all our previous IDs as well as their mentions in the
+`.commit/info` and `.repo/branch` files.
+
+Here is our modified commit procedure:
+
+```bash
+# Set the parent info:
+echo 'parent: 2390b3548a22cb3b1ca3b2a5fd4442d1d83ec556' > .commit/info
+
+# Make the commit. We don't know the ID yet, so we'll initially name it tmp.zip
+zip -r -i@.commit/track .repo/commits/tmp.zip .
+
+# Now compute the ID: The line starting with "# -> " is the output:
+sha1sum .repo/commits/tmp.zip
+# -> ba406507fa691403dca5f5ea4cd6f75320b7d512  .repo/commits/tmp.zip
+
+# And rename the zip file:
+mv .repo/commits/tmp.zip .repo/commits/ba406507fa691403dca5f5ea4cd6f75320b7d512.zip
+
+# Update the branch pointer:
+echo 'ba406507fa691403dca5f5ea4cd6f75320b7d512' > .repo/branches/main
+```
+
+I'll continue to use names like `c1` in the text and diagrams, but those will be
+just for brevity. The real IDs will be the SHA-1 hashes.
 
 # Git
 
