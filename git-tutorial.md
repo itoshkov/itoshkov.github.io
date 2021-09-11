@@ -17,6 +17,42 @@ tutorial instead of reading it.
 I'll be using some simple Linux commands like `mkdir`, `cd`, `ls`, `cp` and of
 course `zip`.
 
+We'll be developing our system by solving the problems we face one at a time.
+There are many solutions to each of them as you can see by the plethora of
+Version Control Systems (VCS) developed since
+[1972](https://en.wikipedia.org/wiki/Version_control#History). Our own choices
+will be informed by git's choices, because we are trying to build a conceptual
+model of how git works. For example it tracks changes between snapshots - the
+current state of the project as a whole, whereas some other VCSes track changes
+of individual files.
+
+## Why Do We Need Version Control Systems?
+
+Software development is hard. Developing anything but the most trivial programs
+takes a lot of time and effort. Often we need to change things to:
+* fix bugs
+* implement new features
+* accommodate new requirements
+* make architectural changes as the program grows
+* etc.
+
+It is not uncommon to need to maintain several versions of our software
+simultaneously. This is especially true for applications that are installed on
+premise, like desktop and mobile apps, but even if we are developing an internal
+web application we need to be able publish bug-fixes and develop new features at
+the same time.
+
+Moreover, many projects are developed by teams of people. Collaborating without
+_accidentally_ deleting other people's code is essential.
+
+Accomplishing these tasks gets increasingly harder, with the size of the project
+and the team. It is very easy to mess things up if you don't have a good system
+to help you.
+
+## Why Git?
+
+*TODO*
+
 # Version Control Without Git
 
 ## The Humble Beginning
