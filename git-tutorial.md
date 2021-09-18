@@ -382,7 +382,7 @@ cat .repo/branches/main
 unzip .repo/commits/c8.zip
 
 # Update HEAD to point to  a branch
-echo 'branches/main` > .repo/HEAD
+echo 'branches/main' > .repo/HEAD
 ```
 
 Switching to a commit -- like this:
@@ -395,7 +395,7 @@ rm -rf * .track
 unzip .repo/commits/c2.zip
 
 # Update HEAD to point to specific commit
-echo 'commits/c2` > .repo/HEAD
+echo 'commits/c2' > .repo/HEAD
 ```
 
 You might be wondering why would you want to switch to a specific commit instead
