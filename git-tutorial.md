@@ -1,4 +1,9 @@
-# Overview
+# Git Tutorial
+
+N.B. This is still a work in progress. Especially the parts describing the
+remote development are a bit rough around the edges.
+
+## Overview
 
 > A conceptual model is an explanation, usually highly simplified, of how
 > something works. It doesn’t have to be complete or even accurate as long as it
@@ -6,27 +11,23 @@
 >
 > Don Norman - The Design of Everyday Things
 
-In this tutorial I'll try to describe how git works, without using git. Instead,
-we'll create a simple, git-like system using just zip files `diff` and `patch`.
-
-The idea is to build a good model of how git works _conceptually_.
+In this tutorial I'll try to describe how git works without using git itself.
+Instead, we'll create a simple, git-like system using just `zip`, `diff`,
+`patch` and a few simple filesystem commands. The idea is to build a good mental
+model of how git works _conceptually_.
 
 You can [go here](https://youtu.be/dQw4w9WgXcQ) if you prefer to watch this
 tutorial instead of reading it.
-
-I'll be using some simple Linux commands like `mkdir`, `cd`, `ls`, `cp` and of
-course `zip`.
 
 We'll be developing our system by solving the problems we face one at a time.
 There are many solutions to each of them as you can see by the plethora of
 Version Control Systems (VCS) developed since
 [1972](https://en.wikipedia.org/wiki/Version_control#History). Our own choices
-will be informed by git's choices, because we are trying to build a conceptual
-model of how git works. For example it tracks changes between snapshots - the
-current state of the project as a whole, whereas some other VCSes track changes
-of individual files.
+will be informed by git's choices. For example it tracks changes between
+snapshots - the current state of the project as a whole, whereas some other
+VCSes track changes of individual files.
 
-## Why Do We Need Version Control Systems?
+### Why Do We Need Version Control Systems?
 
 Software development is hard. Developing anything but the most trivial programs
 takes a lot of time and effort. Often we need to change things to:
@@ -49,13 +50,9 @@ Accomplishing these tasks gets increasingly harder, with the size of the project
 and the team. It is very easy to mess things up if you don't have a good system
 to help you.
 
-## Why Git?
+## Version Control Without Git
 
-*TODO*
-
-# Version Control Without Git
-
-## The Humble Beginning
+### The Humble Beginning
 
 Let's start by creating our new project:
 
@@ -80,7 +77,7 @@ be able to come back to it. One way we can do that is to copy the whole
 
 ```bash
 cd ..
-cp --recusive ProjectX ProjectX-v0
+cp --recursive ProjectX ProjectX-v0
 cd ProjectX
 ```
 
@@ -100,11 +97,11 @@ void main() {
 We can see the differences between this version and `v0` like this:
 
 ```bash
-diff --recusive --unified ../ProjectX-v0 .
+diff --recursive --unified ../ProjectX-v0 .
 ```
 
-The `--recusive` option tells `diff` go compare the directories recursively, and
-the `--unified` -- to show the differences in the so-called unified format.
+The `--recursive` option tells `diff` go compare the directories recursively,
+and the `--unified` -- to show the differences in the so-called unified format.
 
 ```diff
 --- ../ProjectX-v0/main.c	2021-09-06 13:58:33.718024787 +0300
@@ -124,11 +121,11 @@ OK, it's time to save this new version of our software:
 
 ```bash
 cd ..
-cp --recusive ProjectX ProjectX-v1
+cp --recursive ProjectX ProjectX-v1
 cd ProjectX
 ```
 
-## Archives
+### Archives
 
 One of the problems with copying folders like that is, that they tend to take a
 lot of space. Also, it's easy to accidentally change things in the "archive"
@@ -165,8 +162,8 @@ project:
 ```bash
 cd ProjectX
 mkdir -p .repo/commits
-mv ../ProjectX-v0.zip repo/commits/c0.zip
-mv ../ProjectX-v1.zip repo/commits/c1.zip
+mv ../ProjectX-v0.zip .repo/commits/c0.zip
+mv ../ProjectX-v1.zip .repo/commits/c1.zip
 ```
 
 In Linux, UNIX and macOS files and folders starting with dot `.` are "hidden".
@@ -227,7 +224,7 @@ zip -r -i@.commit/track .repo/commits/c2.zip .
 The `-i@.commit/track` option tells `zip` to include only the files mentioned in
 the `.commit/track` file.
 
-## Branches
+### Branches
 
 So far our versions are named sequentially `c0`, `c1`, `c2` and so on. And this
 order is the only thing that tells us that `c2` was created from `c1`, and that
@@ -300,7 +297,7 @@ c0 -- c1 -- c2 -- c3 -- c4 -- c6
               c5 -- c7
 ```
 
-## Names
+### Names
 
 So far so good, but we have just 2 branches and it's getting a bit tedious to
 remember the top commit for each of them. Let's name them!
@@ -335,7 +332,7 @@ echo 'c8' > .repo/branches/main
 This is tedious and errorprone. I hope somebody will create a program to
 automate it ...
 
-## Switching
+### Switching
 
 Above I was saying things like "let's switch to `c2`", or "let's switch to
 `main`", but I never explained how. Here is how:
@@ -431,14 +428,14 @@ echo 'c9' > .repo/branches/main
 Notice that, even though we made a new commit, we didn't have to change
 `.repo/HEAD` as we are still on the same branch.
 
-## Merging
+### Merging
 
 Here is the current situation:
 
 ```
-                                 HEAD -> main
-                                          |
-                                          v
+                                  HEAD -> main
+                                           |
+                                           v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9
              \
               c5 -- c7
@@ -484,25 +481,53 @@ c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
 As you can see, we moved only `main`, but left `release-1` unchanged. That is
 because we merged the latter into the former.
 
-## Collaboration and remote repositories
+### Centralized & Distributed Version Control Systems
+
+Centralized VCSes operate in the client-server model. You have a central server,
+containing the repository and clients, which normally would get only specific
+commits. Each client communicates only with the server. There is a single
+repository and clients have only specific versions of the code.
+
+Distributed VCSes operate in the peer-to-peer model. A developer can obtain a
+full copy of the repository from any peer they are connected to. There are
+multiple repositories and they may begin to diverge.
+
+The distributed model is the newer one. Some of its advantages are:
+* Allowing you to work even without internet connection.
+* You can have private branches, that are available only in your own repository.
+  You can decide to make them public when the code is ready, to keep them
+  private or to delete them without the other developers ever seeing or knowing
+  about them. This is important, because you can write experimental code and
+  still follow good practices like breaking your changes in meaningful commits.
+* Many operations are local and so are faster than going through a central
+  server. For example you can see the commit history, checkout an older commit,
+  create a new branch from it and make a new commit in it all without needing to
+  connect to any outside server (except for StackOverflow of course).
+* You can implement various development models besides the centralized one.
+
+Git is a Distributed VCS, so it leaves us with little choice in the matter: our
+system also needs to be distributed.
+
+### Commits revisited
 
 The business is booming, our project gets bigger and we recruit a new developer
 to help us. But for some strange reason they don't want to cummute each day from
 their home in Madagascar, so we agree to work remotely.
 
-For starters let's send them the content of the `.repo` directory. They will be
-adding account support (log-in and profile management), while we're working on
-the highly requested improved-memefication feature.
+For starters let's send them a full copy of the repository: the content of the
+`.repo` directory. They will be developing account support for ProjectX (log-in
+and profile management), while we're working on the highly requested
+improve-memefication feature.
 
-Let's create a new branch starting from where `main` is pointing to and add a
-new commit there with our initial memefication support.
+Next Let's create a new branch in our repo, starting from where `main` is
+pointing to and add a new commit there with our initial memefication support.
 
 ```
-                                        HEAD -> memefication
-                                                     |
-                                               main  v
-                                                |   c11
-                                                v  /
+                                         HEAD -> memefication
+                                                      |
+                                                main  v
+                                                 |   c11
+                                                 v  /
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
              \                                 /
               c5 -- c7 ------------------------
@@ -512,12 +537,12 @@ c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
 ```
 
 Meanwhile, the other developer is churning code as well and are creating their
-very first commit:
+very first branch and commit in their repository:
 
 ```
-                                       HEAD -> main
-                                                |
-                                                v
+                                        HEAD -> main
+                                                 |
+                                                 v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
              \                                 /   \
               c5 -- c7 ------------------------    c11
@@ -536,17 +561,16 @@ repository (let's say `a` and `b` in our case) and use that ID as part of the
 commit's IDs: `a:c11` and `b:c11`. Assigning unique IDs to each repo is easy
 right now, but in highly distributed project it might because a hassle.
 
-We could use random numbers instead and hope that there won't be any collisions.
-Instead, we'll do something similar, but with better guarantees for the lack of
-collisions: we'll compute a SHA-1 sum of the zip file and use that as the commit
-ID.
+We could use random numbers and hope that there won't be any collisions.
+Instead, we'll do something better: we'll compute a SHA-1 sum of the zip file
+and use that as the commit ID.
 
 SHA-1 is a cryptography hash algorithm. It takes any input and produces a
-20-byte (160 bit) output. For same inputs it will produce same outputs, but even
-a slight deviation in the input will cause a big change in the output. SHA-1 is
-no longer considered safe, so you should not use it for cryptography, but for
-our case it's good enough. You can always go with something stronger, like
-SHA-256 or SHA-512 if you want.
+20-byte (160 bit) output, called the hash. For same inputs it will produce same
+outputs, but even a slight variation in the input will cause a big change in the
+output. SHA-1 is no longer considered safe, so you should not use it for
+cryptography, but for our case it's good enough. You can always go with
+something stronger, like SHA-256 or SHA-512 if you want.
 
 We'll have to fix all our previous IDs as well as their mentions in the
 `.commit/info` and `.repo/branch` files.
@@ -574,12 +598,250 @@ echo 'ba406507fa691403dca5f5ea4cd6f75320b7d512' > .repo/branches/main
 I'll continue to use names like `c1` in the text and diagrams, but those will be
 just for brevity. The real IDs will be the SHA-1 hashes.
 
-# Git
+### Collaboration and Remote Repositories
+
+We'll set up a server, let's call it `the-hub` which will also contain a full
+copy of the `.repo` folder and both we and the new person will have access to
+it. What kind of access? We'll be able to send and receive files and execute
+commands. So almost full access. (We'll be able to restrict this in the future.)
+
+We want to implement the central repository model, for which both Centralized
+and Distributed VCSes have good support. It is an easy and common model and is a
+good fit for this tutorial. In it both developers will be synchronizing their
+work through `the-hub`. Technically speaking, its repository is no different
+than the other two. But we'll consider the version of the code in it to be the
+"real" one. When we create a version of our system, we'll grab the code from
+`the-hub`. Sometimes such repositories are said to be "blessed".
+
+So far we have 3 repositories but they have no knowledge about the existence of
+the others.
+
+The repository in `the-hub` looks like this:
+
+```
+                                        HEAD -> main
+                                                 |
+                                                 v
+c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
+             \                                 /
+              c5 -- c7 ------------------------
+                    ^
+                    |
+                release-1
+```
+
+Ours looks is:
+
+```
+                                         HEAD -> memefication
+                                                      |
+                                                main  v
+                                                 |   c11
+                                                 v  /
+c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
+             \                                 /
+              c5 -- c7 ------------------------
+                    ^
+                    |
+                release-1
+```
+
+And the other dev's repo is:
+
+```
+                                                main
+                                                 |
+                                                 v
+c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
+             \                                 /   \
+              c5 -- c7 ------------------------    c12
+                    ^                               ^
+                    |                               |
+                release-1               HEAD -> profiles
+```
+
+Since we know how to connect to `the-hub` from our machine, let's put that in a
+new file `.repo/config` in our local repository:
+
+```cfg
+[remote "origin"]
+    url = the-hub:/data/.repo
+```
+
+We are defining a connection which we named `origin`. For now we have a single
+parameter: `url`, which tells us on which server (`the-hub`) and where on this
+server (`/data/.repo`) is the repository.
+
+We can define multiple remotes if we need a more involved development workflow.
+
+To be able to synchronize the repositories we need to implement two procedures:
+fetching stuff from the remote repository and pushing our stuff to the remote
+repository.
+
+### Fetching
+
+We are on our computer and we want to get the latest stuff from `origin`. We
+need to download the branch info (the files in `the-hub:/data/.repo/branches`).
+But we can't just put them in our local `.repo/branches` as they may override
+our local view of the branches. For example, we might have locally added a new
+commit `c13` to `main`. If we overwrite `.repo/branches/main` with the one from
+`origin` we'll loose the reference to `c13`.
+
+Let's instead create a new directory structure like this:
+```
+.repo/
+  remotes/
+    origin/        # The name is the same as the one in `.repo/config` file
+      branches/
+        main       # These are the branch files as we've copied them
+        release-1  # from origin
+```
+
+We'll call these "remote branches".
+
+We'll also need any commits we are missing. Because they are named uniquely we
+can just put them with the rest in `.repo/commits`. We don't want to download
+any commits we already have. One approach to do that would be to start from the
+commits in the remote branches and download them, then their parents, and their
+parent's parents until we hit commits that we already have (or the root commit).
+
+It is safer to store them in some temporary folder until we downloaded all
+needed commits. We can also ensure the integrity of the zip files by computing
+their SHA-1 hashes and compare them to their names. That way we won't store any
+partial commits (that is, commits that are not fully downloaded or have missing
+parents).
+
+Each time we fetch from `origin` we'll be updating our knowledge of the current
+state of the branches and commits that are there.
+
+```
+                                         origin/main          main
+                                                 |             |
+                                                 v             v
+c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10 -- c13 -- c15
+             \                                /     \
+              c5 -- c7 -----------------------      c11
+                    ^                                ^
+                    |                                |
+                release-1, origin/release-1          |
+                                                     |
+                                          HEAD -> memefication
+```
+
+As you can see `origin` is a bit behind. It doesn't know about the `c13` and
+`c15` commits and it has no idea about the `memefication` branch.
+
+### Pushing
+
+The code in `c13` is quite important and we want to make it available as soon as
+possible. For this we need to _push_ our changes to `origin`.
+
+Pushing involves:
+* uploading the new commits
+* updating the branches on the remote repository (that is, the repository
+  located on `the-hub`)
+* updating the remote branches (these are the local copies of the above
+  branches)
+
+The first step is easy: we can start with the commit that we want to upload,
+`c13` and start uploading until we find commits that are already on the remote.
+It is safer to do it in the reverse order, so that parent commits are uploaded
+first. This way each uploaded commit will reference already uploaded commits. We
+should also verify the SHA-1 hashes.
+
+Next comes updating the branch on the remote machine. But we should be careful!
+The file there might have changed since the last time we fetched it. We'll
+assume that we can do the check and update _atomically_, that is the file cannot
+change between the time we compare its content and the time we update them. (One
+way we can ensure this is by using
+[flock](https://www.man7.org/linux/man-pages/man1/flock.1.html)). If this check
+fails we should fail the whole _push_ operation and ask the user to use _fetch_
+to update their local view first.
+
+Note that the remote repository still doesn't know about the `memefication`
+branch or about the `c11` commit. This is good as we're still not ready to share
+this code.
+
+### Merging
+
+Let's see what the other developer is up to. (We should really try to remember
+their name already!)
+
+It looks like they've finished their `profiles` branch and are ready to merge it
+with `main`.
+
+```
+                                                main
+                                                 |
+                                                 v
+c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
+             \                                 /   \
+              c5 -- c7 ------------------------    c12 -- c14
+                    ^                                      ^
+                    |                                      |
+                release-1                      HEAD -> profiles
+```
+
+Their first step is to fetch the latest code from `origin`.
+
+```
+                                        HEAD -> main        origin/main
+                                                 |             |
+                                                 v             v
+c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10 -- c13 -- c15
+             \                                 /   \
+              c5 -- c7 ------------------------    c12 -- c14
+                    ^                                      ^
+                    |                                      |
+                release-1                              profiles
+```
+
+They can now see that their local `main` and `origin/main` differ. In this case
+`c10` (`main`) is a parent to `c15` (`origin/main`). We can merge them by
+"fast-forwarding" the `main` branch:
+
+```
+                                               HEAD -> main, origin/main
+                                                               |
+                                                               v
+c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10 -- c13 -- c15
+             \                                 /   \
+              c5 -- c7 ------------------------    c12 -- c14
+                    ^                                      ^
+                    |                                      |
+                release-1                              profiles
+```
+
+Now, let's merge `profiles` into `main` by creating a merge commit. They can
+also remove the branch `profiles` as it is no longer needed (don't worry, the
+commits are still there):
+
+```
+                                                      origin/main   main <-- HEAD
+                                                               |      |
+                                                               v      v
+c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10 -- c13 -- c15 -- c16
+             \                                 /   \                /
+              c5 -- c7 ------------------------    c12 -- c14 ------
+                    ^
+                    |
+                release-1
+```
+
+They can now push `main` to `origin`, which will upload the `c12`, `c14` and
+`c16` commits and will move forward the `main` branch on `the-hub`.
+
+## Git
 
 I will now make what is known as a pro move, and direct you to the excellent
-[Pro Git](https://git-scm.com/book/en/v2) book! It is free and easy to read, and
-now, hopefully, even easier to understand!
+[Pro Git](https://git-scm.com/book/en/v2) book. It is free and easy to read, and
+hopefully, even easier to understand.
 
-It might look like a cop-out and it is. But also, there are already quite good
+It might look like a cop-out and it is. But there are already quite a few good
 tutorials, which describe how to use git. My main objective here was to describe
 how git works and to some extent to answer the question "why is it like that".
+
+There are a few concepts that I wanted to include, but didn't. Specifically the
+staging area, which is also sometimes called "the index" and the tracking
+branches. Both are not hard to explain, but would make this already sizeable
+tutorial bigger and probably a bit more confusing.
