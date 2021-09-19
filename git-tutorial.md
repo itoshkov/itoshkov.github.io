@@ -1,4 +1,4 @@
-# Git Tutorial
+# Teach Yourself Git Without Learning a Single Git Command
 
 N.B. This is still a work in progress. Especially the parts describing the
 remote development are a bit rough around the edges.
@@ -282,7 +282,7 @@ history will now look like this:
 ```
 c0 -- c1 -- c2 -- c3 -- c4
              \
-              c5
+               -- c5
 ```
 
 Good! Now we can go back to `c5` when we need to.
@@ -294,7 +294,7 @@ fix on top of it. The picture now will look like this:
 ```
 c0 -- c1 -- c2 -- c3 -- c4 -- c6
              \
-              c5 -- c7
+               -- c5 -- c7
 ```
 
 ### Names
@@ -438,10 +438,10 @@ Here is the current situation:
                                            v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9
              \
-              c5 -- c7
-                    ^
-                    |
-                release-1
+               -- c5 -- c7
+                        ^
+                        |
+                    release-1
 ```
 
 We want to create a new release, but first we want to grab the fixes from
@@ -467,15 +467,15 @@ parent: c9 c7
 And the full picture now looks this way:
 
 ```
-                                       HEAD -> main
-                                                |
-                                                v
+                                        HEAD -> main
+                                                 |
+                                                 v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
-             \                                 /
-              c5 -- c7 ------------------------
-                    ^
-                    |
-                release-1
+             \                                  /
+               -- c5 -- c7 --------------------
+                         ^
+                         |
+                     release-1
 ```
 
 As you can see, we moved only `main`, but left `release-1` unchanged. That is
@@ -523,17 +523,17 @@ Next Let's create a new branch in our repo, starting from where `main` is
 pointing to and add a new commit there with our initial memefication support.
 
 ```
-                                         HEAD -> memefication
-                                                      |
-                                                main  v
-                                                 |   c11
-                                                 v  /
+                                           HEAD -> memefication
+                                                        |
+                                               main     v
+                                                |   -- c11
+                                                v /
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
-             \                                 /
-              c5 -- c7 ------------------------
-                    ^
-                    |
-                release-1
+             \                                  /
+               -- c5 -- c7 --------------------
+                         ^
+                         |
+                     release-1
 ```
 
 Meanwhile, the other developer is churning code as well and are creating their
@@ -544,11 +544,11 @@ very first branch and commit in their repository:
                                                  |
                                                  v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
-             \                                 /   \
-              c5 -- c7 ------------------------    c11
-                    ^                               ^
-                    |                               |
-                release-1               HEAD -> profiles
+             \                                  / \
+               -- c5 -- c7 --------------------     -- c11
+                         ^                              ^
+                         |                              |
+                      release-1              HEAD -> profiles
 ```
 
 There's our first problem: both new commits have the same ID: `c11`. This
@@ -623,27 +623,27 @@ The repository in `the-hub` looks like this:
                                                  |
                                                  v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
-             \                                 /
-              c5 -- c7 ------------------------
-                    ^
-                    |
-                release-1
+             \                                  /
+               -- c5 -- c7 --------------------
+                        ^
+                        |
+                    release-1
 ```
 
 Ours looks is:
 
 ```
-                                         HEAD -> memefication
-                                                      |
-                                                main  v
-                                                 |   c11
-                                                 v  /
+                                           HEAD -> memefication
+                                                        |
+                                               main     v
+                                                |   -- c11
+                                                v /
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
-             \                                 /
-              c5 -- c7 ------------------------
-                    ^
-                    |
-                release-1
+             \                                  /
+               -- c5 -- c7 --------------------
+                        ^
+                        |
+                    release-1
 ```
 
 And the other dev's repo is:
@@ -653,11 +653,11 @@ And the other dev's repo is:
                                                  |
                                                  v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
-             \                                 /   \
-              c5 -- c7 ------------------------    c12
-                    ^                               ^
-                    |                               |
-                release-1               HEAD -> profiles
+             \                                  / \
+               -- c5 -- c7 --------------------     -- c12
+                        ^                               ^
+                        |                               |
+                    release-1                HEAD -> profiles
 ```
 
 Since we know how to connect to `the-hub` from our machine, let's put that in a
@@ -719,13 +719,13 @@ state of the branches and commits that are there.
                                                  |             |
                                                  v             v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10 -- c13 -- c15
-             \                                /     \
-              c5 -- c7 -----------------------      c11
-                    ^                                ^
-                    |                                |
-                release-1, origin/release-1          |
-                                                     |
-                                          HEAD -> memefication
+             \                                  / \
+               -- c5 -- c7 --------------------     -- c11
+                        ^                               ^
+                        |                               |
+                    release-1, origin/release-1         |
+                                                        |
+                                             HEAD -> memefication
 ```
 
 As you can see `origin` is a bit behind. It doesn't know about the `c13` and
@@ -775,11 +775,11 @@ with `main`.
                                                  |
                                                  v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10
-             \                                 /   \
-              c5 -- c7 ------------------------    c12 -- c14
-                    ^                                      ^
-                    |                                      |
-                release-1                      HEAD -> profiles
+             \                                  / \
+               -- c5 -- c7 --------------------     -- c12 -- c14
+                        ^                                      ^
+                        |                                      |
+                    release-1                      HEAD -> profiles
 ```
 
 Their first step is to fetch the latest code from `origin`.
@@ -789,11 +789,11 @@ Their first step is to fetch the latest code from `origin`.
                                                  |             |
                                                  v             v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10 -- c13 -- c15
-             \                                 /   \
-              c5 -- c7 ------------------------    c12 -- c14
-                    ^                                      ^
-                    |                                      |
-                release-1                              profiles
+             \                                  / \
+               -- c5 -- c7 --------------------     -- c12 -- c14
+                        ^                                      ^
+                        |                                      |
+                    release-1                      HEAD -> profiles
 ```
 
 They can now see that their local `main` and `origin/main` differ. In this case
@@ -805,11 +805,11 @@ They can now see that their local `main` and `origin/main` differ. In this case
                                                                |
                                                                v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10 -- c13 -- c15
-             \                                 /   \
-              c5 -- c7 ------------------------    c12 -- c14
-                    ^                                      ^
-                    |                                      |
-                release-1                              profiles
+             \                                  / \
+               -- c5 -- c7 --------------------     -- c12 -- c14
+                        ^                                      ^
+                        |                                      |
+                    release-1                      HEAD -> profiles
 ```
 
 Now, let's merge `profiles` into `main` by creating a merge commit. They can
@@ -821,11 +821,11 @@ commits are still there):
                                                                |      |
                                                                v      v
 c0 -- c1 -- c2 -- c3 -- c4 -- c6 -- c8 -- c9 -- c10 -- c13 -- c15 -- c16
-             \                                 /   \                /
-              c5 -- c7 ------------------------    c12 -- c14 ------
-                    ^
-                    |
-                release-1
+             \                                  / \                  /
+               -- c5 -- c7 --------------------     -- c12 -- c14 --
+                        ^
+                        |
+                    release-1
 ```
 
 They can now push `main` to `origin`, which will upload the `c12`, `c14` and
