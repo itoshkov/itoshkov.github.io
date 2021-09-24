@@ -1,7 +1,16 @@
 # Teach Yourself Git Without Learning a Single Git Command
 
-N.B. This is still a work in progress. Especially the parts describing the
-remote development are a bit rough around the edges.
+**by Ivan Toshkov**
+
+## Changes
+
+* *2021-09-11* Version 1.0 - Containing sections about distributed repositories
+  and remotes.
+
+## Question & Suggestions
+
+If you have any question or suggestions about this tutorial, please file them as
+issues [here](https://github.com/itoshkov/itoshkov.github.io/issues).
 
 ## Overview
 
