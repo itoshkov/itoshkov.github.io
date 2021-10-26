@@ -260,7 +260,7 @@ able to go back to exactly this code, as we didn't save it anywhere. No, we need
 a better solution.
 
 We can modify the commits, so they "know" which their parrent commit is. Let's
-add this in another file, called `.commit/info`. For `c2` it will look like
+add this in another file, called `.commit/info`. For `c2` its content will look like
 this:
 
 ```
@@ -358,15 +358,15 @@ It's not that bad, if we ignore the ugly way we clean up the working folder,
 right?
 
 But what if we now go to lunch, and when we come back next day we forget which
-commit we switched to? Yes, sometimes lunches are that long. We can then write
+commit we switched to? Yes, sometimes lunches are that long. We could write
 some code and then commit:
 
 ```bash
 # Set the parent info:
-echo 'parent: c8' > .repo
+echo 'parent: c8' > .commit/info
 
 # Make the commit:
-zip -r -i@.track .repo/commits/c9.zip .
+zip -r -i@.commit/track .repo/commits/c9.zip .
 
 # Update the branch pointer:
 echo 'c9' > .repo/branches/main
@@ -382,7 +382,7 @@ Switching to a branch will look like this:
 
 ```bash
 # Remove all the files and subfolders except for `.repo`:
-rm -rf * .track
+rm -rf * .commit
 
 cat .repo/branches/main
 # This will tell us which commit the main brach points to
@@ -390,7 +390,7 @@ cat .repo/branches/main
 # Unzip the relevant commit
 unzip .repo/commits/c8.zip
 
-# Update HEAD to point to  a branch
+# Update HEAD to point to a branch
 echo 'branches/main' > .repo/HEAD
 ```
 
@@ -398,7 +398,7 @@ Switching to a commit -- like this:
 
 ```bash
 # Remove all the files and subfolders except for `.repo`:
-rm -rf * .track
+rm -rf * .commit
 
 # Unzip the relevant commit
 unzip .repo/commits/c2.zip
@@ -512,7 +512,7 @@ The distributed model is the newer one. Some of its advantages are:
   server. For example you can see the commit history, checkout an older commit,
   create a new branch from it and make a new commit in it all without needing to
   connect to any outside server (except for StackOverflow of course).
-* You can implement various development models besides the centralized one.
+* You can use various development workflows besides the centralized one.
 
 Git is a Distributed VCS, so it leaves us with little choice in the matter: our
 system also needs to be distributed.
@@ -524,11 +524,11 @@ to help us. But for some strange reason they don't want to cummute each day from
 their home in Madagascar, so we agree to work remotely.
 
 For starters let's send them a full copy of the repository: the content of the
-`.repo` directory. They will be developing account support for ProjectX (log-in
-and profile management), while we're working on the highly requested
+`.repo` directory. Let's say they will be working on account support for ProjectX
+(log-in and profile management), while we're working on the highly requested
 improve-memefication feature.
 
-Next Let's create a new branch in our repo, starting from where `main` is
+Next let's create a new branch in our repo, starting from where `main` is
 pointing to and add a new commit there with our initial memefication support.
 
 ```
@@ -567,8 +567,8 @@ another copy at all.
 
 There are many ways to fix this. We can assign a unique ID to each copy of the
 repository (let's say `a` and `b` in our case) and use that ID as part of the
-commit's IDs: `a:c11` and `b:c11`. Assigning unique IDs to each repo is easy
-right now, but in highly distributed project it might because a hassle.
+commit's IDs: `a:c11` and `b:c11`. An assigning of unique IDs to each repo is easy
+right now, but in highly distributed project it might cause a hassle.
 
 We could use random numbers and hope that there won't be any collisions.
 Instead, we'll do something better: we'll compute a SHA-1 sum of the zip file
@@ -581,7 +581,7 @@ output. SHA-1 is no longer considered safe, so you should not use it for
 cryptography, but for our case it's good enough. You can always go with
 something stronger, like SHA-256 or SHA-512 if you want.
 
-We'll have to fix all our previous IDs as well as their mentions in the
+We'll have to fix all our previous IDs as well as their references in the
 `.commit/info` and `.repo/branch` files.
 
 Here is our modified commit procedure:
@@ -694,7 +694,7 @@ need to download the branch info (the files in `the-hub:/data/.repo/branches`).
 But we can't just put them in our local `.repo/branches` as they may override
 our local view of the branches. For example, we might have locally added a new
 commit `c13` to `main`. If we overwrite `.repo/branches/main` with the one from
-`origin` we'll loose the reference to `c13`.
+`origin` we'll lose the reference to `c13`.
 
 Let's instead create a new directory structure like this:
 ```
@@ -765,7 +765,7 @@ change between the time we compare its content and the time we update them. (One
 way we can ensure this is by using
 [flock](https://www.man7.org/linux/man-pages/man1/flock.1.html)). If this check
 fails we should fail the whole _push_ operation and ask the user to use _fetch_
-to update their local view first.
+to update their local repository first.
 
 Note that the remote repository still doesn't know about the `memefication`
 branch or about the `c11` commit. This is good as we're still not ready to share
