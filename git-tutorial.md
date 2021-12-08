@@ -233,6 +233,21 @@ zip -r -i@.commit/track .repo/commits/c2.zip .
 The `-i@.commit/track` option tells `zip` to include only the files mentioned in
 the `.commit/track` file.
 
+Here is how our ProjectX files look like so far:
+- `ProjectX/`
+  - `.repo/`
+    - `commits/`
+      - `c0.zip`
+      - `c1.zip`
+      - ...
+  - `.commit/`
+    - `track`
+  - `main.c`
+  - ...
+
+The trailing `/` is not part of the name. It's there just to help us distinguish
+folders from files.
+
 ### Branches
 
 So far our versions are named sequentially `c0`, `c1`, `c2` and so on. And this
@@ -317,6 +332,19 @@ c0 -- c1 -- c2 -- c3 -- c4 -- c6
                -- c5 -- c7
 ```
 
+Here is the updated ProjectX files structure:
+- `ProjectX/`
+  - `.repo/`
+    - `commits/`
+      - `c0.zip`
+      - `c1.zip`
+      - ...
+  - `.commit/`
+    - `info` <-- new file
+    - `track`
+  - `main.c`
+  - ...
+
 ### Names
 
 So far so good, but we have just 2 branches and it's getting a bit tedious to
@@ -351,6 +379,23 @@ echo 'c8' > .repo/branches/main
 
 This is tedious and errorprone. I hope somebody will create a program to
 automate it ...
+
+Here is the updated ProjectX files structure:
+- `ProjectX/`
+  - `.repo/`
+    - `commits/`
+      - `c0.zip`
+      - `c1.zip`
+      - ...
+    - `branches/` <-- new folder and files
+      - `main`
+      - `release-1`
+      - ...
+  - `.commit/`
+    - `info`
+    - `track`
+  - `main.c`
+  - ...
 
 ### Switching
 
@@ -432,6 +477,24 @@ echo 'c9' > .repo/branches/main
 
 Notice that, even though we made a new commit, we didn't have to change
 `.repo/HEAD` as we are still on the same branch.
+
+Here is the obligatory ProjectX files structure:
+- `ProjectX/`
+  - `.repo/`
+    - `commits/`
+      - `c0.zip`
+      - `c1.zip`
+      - ...
+    - `branches/`
+      - `main`
+      - `release-1`
+      - ...
+    - `HEAD` <-- new file
+  - `.commit/`
+    - `info`
+    - `track`
+  - `main.c`
+  - ...
 
 ### Merging
 
@@ -683,6 +746,25 @@ To be able to synchronize the repositories we need to implement two procedures:
 fetching stuff from the remote repository and pushing our stuff to the remote
 repository.
 
+Here is the updated structure:
+- `ProjectX/`
+  - `.repo/`
+    - `commits/`
+      - `c0.zip`
+      - `c1.zip`
+      - ...
+    - `branches/`
+      - `main`
+      - `release-1`
+      - ...
+    - `HEAD`
+    - `config` <-- new file
+  - `.commit/`
+    - `info`
+    - `track`
+  - `main.c`
+  - ...
+
 ### Fetching
 
 We are on our computer and we want to get the latest stuff from `origin`. We
@@ -693,14 +775,29 @@ commit `c13` to `main`. If we overwrite `.repo/branches/main` with the one from
 `origin` we'll lose the reference to `c13`.
 
 Let's instead create a new directory structure like this:
-```
-.repo/
-  remotes/
-    origin/        # The name is the same as the one in `.repo/config` file
-      branches/
-        main       # These are the branch files as we've copied them
-        release-1  # from origin
-```
+- `ProjectX/`
+  - `.repo/`
+    - `commits/`
+      - `c0.zip`
+      - `c1.zip`
+      - ...
+    - `branches/`
+      - `main`
+      - `release-1`
+      - ...
+    - `remotes/` <-- new folder
+      - `origin/` - The name is the same as the one in `.repo/config` file
+        - `branches/`
+          - `main` - These are the branch files copied from `origin`
+          - `release-1`
+          - ...
+    - `HEAD`
+    - `config`
+  - `.commit/`
+    - `info`
+    - `track`
+  - `main.c`
+  - ...
 
 We'll call these "remote branches".
 
