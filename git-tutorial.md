@@ -244,24 +244,35 @@ But what are branches and why do we need them? Suppose that we have released
 `c2` in the world, and are working on new features. We have created new commits
 `c3` and `c4`, but overall the feature is not ready yet.
 
-While we are working on it, we receive complaints about some major problem in
-`c2`. And our customers can't wait for us to finish with our new feature. They
-need a fixed `c2` now!
+```
+c0 -- c1 -- c2 -- c3 -- c4
+```
+
+While we are working on it, we receive complaints about some a problem in `c2`.
+And our customers can't wait for us to finish with our new feature. They need a
+fixed `c2` now!
 
 Luckily, we do have our `c2` source code. We can "switch" to it, fix the bug,
-and release the good version. But where should we put the fix itself?
+and release the good version. For now, let's call it `c2-fixed`. But where
+should we put the fix itself?
 
-We might be tempted to temporary save the changes somewhere, switch back to our
-`c4` version, then apply the fix and make a `c5` commit. After all, we do want
-this fix to be part of the next version that we are going to release, right?
+We might be tempted to temporarily save the changes somewhere, switch back to
+our `c4` version and apply the fix. Let's call this `c4-fixed`. After all, we do
+want this fix to be part of the next version that we are going to release,
+right?
 
-But what if there's yet another problem with the "fixed" `c2`? We wouldn't be
-able to go back to exactly this code, as we didn't save it anywhere. No, we need
-a better solution.
+```
+c0 -- c1 -- c2 -- c3 -- c4 -- c4-fixed
+```
 
-We can modify the commits, so they "know" which their parrent commit is. Let's
-add this in another file, called `.commit/info`. For `c2` its content will look like
-this:
+But what if there's yet another problem with `c2-fixed`? We wouldn't be able to
+go back to exactly this code, as we didn't save it anywhere. No, we need a
+better solution.
+
+Ideally, we want to make the `c2-fixed` version a proper commit and connect it
+to its parent `c2`. To accomplish this, we will modify the commits, so they
+"know" which their parrent commit is. Let's add this in another file, called
+`.commit/info`. For `c2` its content will look like this:
 
 ```
 parent: c1
@@ -284,8 +295,8 @@ We can also add more information to this file like:
 
 But we won't do that in this tutorial, to keep things simple.
 
-We went back and fixed all our commits to have this file. Now we can switch back
-to `c2`, implement the fix and create a new commit, let's say `c5`. The commit
+We went back and fixed all our commits to have this file. Now we can implement
+the `c2-fixed` as a proper commit with a proper commit name `c5`. The commit
 history will now look like this:
 
 ```
