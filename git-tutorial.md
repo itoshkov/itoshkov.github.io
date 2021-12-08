@@ -6,6 +6,10 @@
 
 * *2021-09-11* Version 1.0 - Containing sections about distributed repositories
   and remotes.
+* *2021-12-08* Version 1.1 - Implement suggestions by u/Big_Oven8562:
+  * Improved the Branches section.
+  * Replace the "oops" commit with description of the problem.
+  * Show the folder structure after each change.
 
 ## Question & Suggestions
 
