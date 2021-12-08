@@ -368,23 +368,8 @@ unzip .repo/commits/c2.zip
 It's not that bad, if we ignore the ugly way we clean up the working folder,
 right?
 
-But what if we now go to lunch, and when we come back next day we forget which
-commit we switched to? Yes, sometimes lunches are that long. We could write
-some code and then commit:
-
-```bash
-# Set the parent info:
-echo 'parent: c8' > .commit/info
-
-# Make the commit:
-zip -r -i@.commit/track .repo/commits/c9.zip .
-
-# Update the branch pointer:
-echo 'c9' > .repo/branches/main
-```
-
-Oops! We committed in the wrong branch! The commit was based off of `c2` but we
-forgot that and treated it as if it was based on `c8` instead.
+But what happens if on Monday we can't remember which commit we've checked out
+last Friday? We might commit in the wrong branch.
 
 It's time to add another level of indirection. We can create a file
 `.repo/HEAD`, which will contain the name of the current branch or commit.
