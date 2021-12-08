@@ -326,9 +326,10 @@ c0 -- c1 -- c2 -- c3 -- c4
 
 Good! Now we can go back to `c5` when we need to.
 
-Like when we needed to properly fix the broken fix from before. Let's assume we
-added one more commit to `c4`, we then went back to `c5` and implemented the new
-fix on top of it. The picture now will look like this:
+And we need to do this to properly fix `c5` (formerly known as `c2-fixed`).
+There was an additional problem with it, remember? Let's assume that in the
+meantime we added one more commit to `c4`. We now go back to `c5` and implement
+the new fix on top of it. The picture will look like this:
 
 ```
 c0 -- c1 -- c2 -- c3 -- c4 -- c6
