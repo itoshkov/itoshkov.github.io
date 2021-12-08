@@ -271,9 +271,9 @@ While we are working on it, we receive complaints about some a problem in `c2`.
 And our customers can't wait for us to finish with our new feature. They need a
 fixed `c2` now!
 
-Luckily, we do have our `c2` source code. We can "switch" to it, fix the bug,
-and release the good version. For now, let's call it `c2-fixed`. But where
-should we put the fix itself?
+Luckily, we do have our `c2` source code. We can switch to it, fix the bug, and
+release the good version. For now, let's call it `c2-fixed`. But where should we
+put the fix itself?
 
 We might be tempted to temporarily save the changes somewhere, switch back to
 our `c4` version and apply the fix. Let's call this `c4-fixed`. After all, we do
@@ -289,9 +289,9 @@ go back to exactly this code, as we didn't save it anywhere. No, we need a
 better solution.
 
 Ideally, we want to make the `c2-fixed` version a proper commit and connect it
-to its parent `c2`. To accomplish this, we will modify the commits, so they
-"know" which their parrent commit is. Let's add this in another file, called
-`.commit/info`. For `c2` its content will look like this:
+to its parent `c2`. To accomplish this, we will modify the commits to reference
+their parrent commit. Let's add this in another file, called `.commit/info`. For
+`c2` its content will look like this:
 
 ```
 parent: c1
