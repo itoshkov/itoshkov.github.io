@@ -6,6 +6,10 @@
 
 * *2021-09-11* Version 1.0 - Containing sections about distributed repositories
   and remotes.
+* *2021-12-08* Version 1.1 - Implement suggestions by u/Big_Oven8562:
+  * Improved the Branches section.
+  * Replace the "oops" commit with description of the problem.
+  * Show the folder structure after each change.
 
 ## Question & Suggestions
 
@@ -233,6 +237,21 @@ zip -r -i@.commit/track .repo/commits/c2.zip .
 The `-i@.commit/track` option tells `zip` to include only the files mentioned in
 the `.commit/track` file.
 
+Here is how our ProjectX files look like so far:
+- `ProjectX/`
+  - `.repo/`
+    - `commits/`
+      - `c0.zip`
+      - `c1.zip`
+      - ...
+  - `.commit/`
+    - `track`
+  - `main.c`
+  - ...
+
+The trailing `/` is not part of the name. It's there just to help us distinguish
+folders from files.
+
 ### Branches
 
 So far our versions are named sequentially `c0`, `c1`, `c2` and so on. And this
@@ -244,24 +263,35 @@ But what are branches and why do we need them? Suppose that we have released
 `c2` in the world, and are working on new features. We have created new commits
 `c3` and `c4`, but overall the feature is not ready yet.
 
-While we are working on it, we receive complaints about some major problem in
-`c2`. And our customers can't wait for us to finish with our new feature. They
-need a fixed `c2` now!
+```
+c0 -- c1 -- c2 -- c3 -- c4
+```
 
-Luckily, we do have our `c2` source code. We can "switch" to it, fix the bug,
-and release the good version. But where should we put the fix itself?
+While we are working on it, we receive complaints about some a problem in `c2`.
+And our customers can't wait for us to finish with our new feature. They need a
+fixed `c2` now!
 
-We might be tempted to temporary save the changes somewhere, switch back to our
-`c4` version, then apply the fix and make a `c5` commit. After all, we do want
-this fix to be part of the next version that we are going to release, right?
+Luckily, we do have our `c2` source code. We can switch to it, fix the bug, and
+release the good version. For now, let's call it `c2-fixed`. But where should we
+put the fix itself?
 
-But what if there's yet another problem with the "fixed" `c2`? We wouldn't be
-able to go back to exactly this code, as we didn't save it anywhere. No, we need
-a better solution.
+We might be tempted to temporarily save the changes somewhere, switch back to
+our `c4` version and apply the fix. Let's call this `c4-fixed`. After all, we do
+want this fix to be part of the next version that we are going to release,
+right?
 
-We can modify the commits, so they "know" which their parrent commit is. Let's
-add this in another file, called `.commit/info`. For `c2` its content will look like
-this:
+```
+c0 -- c1 -- c2 -- c3 -- c4 -- c4-fixed
+```
+
+But what if there's yet another problem with `c2-fixed`? We wouldn't be able to
+go back to exactly this code, as we didn't save it anywhere. No, we need a
+better solution.
+
+Ideally, we want to make the `c2-fixed` version a proper commit and connect it
+to its parent `c2`. To accomplish this, we will modify the commits to reference
+their parrent commit. Let's add this in another file, called `.commit/info`. For
+`c2` its content will look like this:
 
 ```
 parent: c1
@@ -284,8 +314,8 @@ We can also add more information to this file like:
 
 But we won't do that in this tutorial, to keep things simple.
 
-We went back and fixed all our commits to have this file. Now we can switch back
-to `c2`, implement the fix and create a new commit, let's say `c5`. The commit
+We went back and fixed all our commits to have this file. Now we can implement
+the `c2-fixed` as a proper commit with a proper commit name `c5`. The commit
 history will now look like this:
 
 ```
@@ -305,6 +335,19 @@ c0 -- c1 -- c2 -- c3 -- c4 -- c6
              \
                -- c5 -- c7
 ```
+
+Here is the updated ProjectX files structure:
+- `ProjectX/`
+  - `.repo/`
+    - `commits/`
+      - `c0.zip`
+      - `c1.zip`
+      - ...
+  - `.commit/`
+    - `info` <-- new file
+    - `track`
+  - `main.c`
+  - ...
 
 ### Names
 
@@ -341,6 +384,23 @@ echo 'c8' > .repo/branches/main
 This is tedious and errorprone. I hope somebody will create a program to
 automate it ...
 
+Here is the updated ProjectX files structure:
+- `ProjectX/`
+  - `.repo/`
+    - `commits/`
+      - `c0.zip`
+      - `c1.zip`
+      - ...
+    - `branches/` <-- new folder and files
+      - `main`
+      - `release-1`
+      - ...
+  - `.commit/`
+    - `info`
+    - `track`
+  - `main.c`
+  - ...
+
 ### Switching
 
 Above I was saying things like "let's switch to `c2`", or "let's switch to
@@ -357,23 +417,8 @@ unzip .repo/commits/c2.zip
 It's not that bad, if we ignore the ugly way we clean up the working folder,
 right?
 
-But what if we now go to lunch, and when we come back next day we forget which
-commit we switched to? Yes, sometimes lunches are that long. We could write
-some code and then commit:
-
-```bash
-# Set the parent info:
-echo 'parent: c8' > .commit/info
-
-# Make the commit:
-zip -r -i@.commit/track .repo/commits/c9.zip .
-
-# Update the branch pointer:
-echo 'c9' > .repo/branches/main
-```
-
-Oops! We committed in the wrong branch! The commit was based off of `c2` but we
-forgot that and treated it as if it was based on `c8` instead.
+But what happens if on Monday we can't remember which commit we've checked out
+last Friday? We might commit in the wrong branch.
 
 It's time to add another level of indirection. We can create a file
 `.repo/HEAD`, which will contain the name of the current branch or commit.
@@ -436,6 +481,24 @@ echo 'c9' > .repo/branches/main
 
 Notice that, even though we made a new commit, we didn't have to change
 `.repo/HEAD` as we are still on the same branch.
+
+Here is the obligatory ProjectX files structure:
+- `ProjectX/`
+  - `.repo/`
+    - `commits/`
+      - `c0.zip`
+      - `c1.zip`
+      - ...
+    - `branches/`
+      - `main`
+      - `release-1`
+      - ...
+    - `HEAD` <-- new file
+  - `.commit/`
+    - `info`
+    - `track`
+  - `main.c`
+  - ...
 
 ### Merging
 
@@ -687,6 +750,25 @@ To be able to synchronize the repositories we need to implement two procedures:
 fetching stuff from the remote repository and pushing our stuff to the remote
 repository.
 
+Here is the updated structure:
+- `ProjectX/`
+  - `.repo/`
+    - `commits/`
+      - `c0.zip`
+      - `c1.zip`
+      - ...
+    - `branches/`
+      - `main`
+      - `release-1`
+      - ...
+    - `HEAD`
+    - `config` <-- new file
+  - `.commit/`
+    - `info`
+    - `track`
+  - `main.c`
+  - ...
+
 ### Fetching
 
 We are on our computer and we want to get the latest stuff from `origin`. We
@@ -697,14 +779,29 @@ commit `c13` to `main`. If we overwrite `.repo/branches/main` with the one from
 `origin` we'll lose the reference to `c13`.
 
 Let's instead create a new directory structure like this:
-```
-.repo/
-  remotes/
-    origin/        # The name is the same as the one in `.repo/config` file
-      branches/
-        main       # These are the branch files as we've copied them
-        release-1  # from origin
-```
+- `ProjectX/`
+  - `.repo/`
+    - `commits/`
+      - `c0.zip`
+      - `c1.zip`
+      - ...
+    - `branches/`
+      - `main`
+      - `release-1`
+      - ...
+    - `remotes/` <-- new folder
+      - `origin/` - The name is the same as the one in `.repo/config` file
+        - `branches/`
+          - `main` - These are the branch files copied from `origin`
+          - `release-1`
+          - ...
+    - `HEAD`
+    - `config`
+  - `.commit/`
+    - `info`
+    - `track`
+  - `main.c`
+  - ...
 
 We'll call these "remote branches".
 
